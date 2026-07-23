@@ -42,6 +42,7 @@ canvas{display:block;width:100vw;height:100vh;background:#0B0C10}
 #btn:active,#menu-start:active,#menu-audio:active{transform:translateY(1px)}
 .hidden{display:none!important}
 #hud .heart.lost{opacity:.25}
+.menu-sub{color:#45A29E;font-size:12px;margin-top:14px;opacity:.85;line-height:1.5}
 
 #touch-top,#touch-bottom{position:absolute;left:0;right:0;z-index:5;touch-action:none}
 #touch-top{top:0;height:55%}
@@ -82,6 +83,8 @@ const canvas=document.getElementById('game');
 const ctx=canvas.getContext('2d');
 const scoreEl=document.getElementById('score-val');
 const comboEl=document.getElementById('combo-val');
+const livesEl=document.getElementById('lives');
+const bossEl=document.getElementById('boss-health');
 const overlay=document.getElementById('overlay');
 const finalScoreEl=document.getElementById('final-score');
 const bestScoreEl=document.getElementById('best-score');
@@ -101,6 +104,8 @@ const coinImg=loadImage(IMG.coin_png);
 const obstacleImg=loadImage(IMG.obstacle_png);
 const obstacleTopImg=loadImage(IMG.obstacle_top_png);
 const obstacleCrateImg=loadImage(IMG.obstacle_crate_png);
+const enemyFlyImg=loadImage(IMG.enemy_fly_png);
+const enemyGroundImg=loadImage(IMG.enemy_ground_png);
 const ATLAS = {""" + ','.join(f'"{k}":{{x:{x},y:{y},w:48,h:48}}' for k,(x,y) in ATLAS.items()) + r"""};
 
 let actx=null;
@@ -137,11 +142,16 @@ let combo=0;
 let comboTimer=0;
 let spawnTimer=1;
 let obstacles=[];
+let enemies=[];
 let coins=[];
 let particles=[];
 let texts=[];
 let camShake=0;
 let ducking=false;
+let lives=3;
+let invulnTimer=0;
+let bossActive=false;
+let bossHp=0;
 
 const PLAYER_W=44;
 const PLAYER_H_DUCK=32;
@@ -154,7 +164,7 @@ const MAX_JUMPS=2;
 
 let player={x:0,y:0,w:PLAYER_W,h:PLAYER_H_STAND,vy:0,onGround:true,invuln:0,jumps:0};
 
-function reset(){state='run';runFrame=0;distance=0;score=0;combo=0;comboTimer=0;speed=6;obstacles=[];coins=[];particles=[];texts=[];camShake=0;ducking=false;player.x=W*0.18;player.y=H*GROUND_RATIO-player.h;player.vy=0;player.onGround=true;player.invuln=0;player.jumps=0;player.w=PLAYER_W;player.h=PLAYER_H_STAND;spawnTimer=1;overlay.classList.add('hidden');scoreEl.textContent='0';comboEl.textContent='0';ensureAudio();playMusic('gameplay_loop.wav');}
+function reset(){state='run';runFrame=0;distance=0;score=0;combo=0;comboTimer=0;speed=6;obstacles=[];enemies=[];coins=[];particles=[];texts=[];camShake=0;ducking=false;player.x=W*0.18;player.y=H*GROUND_RATIO-player.h;player.vy=0;player.onGround=true;player.invuln=0;player.jumps=0;player.w=PLAYER_W;player.h=PLAYER_H_STAND;spawnTimer=1;overlay.classList.add('hidden');scoreEl.textContent='0';comboEl.textContent='0';lives=3;invulnTimer=0;bossActive=false;bossHp=0;renderLives();bossEl.style.display='none';ensureAudio();playMusic('gameplay_loop.wav');}
 
 function gameOver(){state='dead';playSound('hit.wav',1.2);playSound('gameover_sting.wav',0.9);if(score>highScore){highScore=score;localStorage.setItem('neonDashHigh',String(highScore));}finalScoreEl.textContent=String(score);bestScoreEl.textContent='BEST '+String(highScore);overlay.classList.remove('hidden');}
 
@@ -187,7 +197,11 @@ function rectsHit(a,b){return a.x<b.x+b.w&&a.x+a.w>b.x&&a.y<b.y+b.h&&a.y+a.h>b.y
 
 function spawnObstacle(){const r=Math.random();let type='barrier';if(r<0.25)type='double';else if(r<0.45)type='crate';else if(r<0.55)type='low';const lane=Math.random()*0.35+0.3;const o={x:W+40,y:0,w:0,h:0,type,passed:false};if(type==='barrier')o.w=36;else if(type==='double')o.w=36;else if(type==='crate')o.w=44;else if(type==='low')o.w=50;o.y=H*lane-(type==='low'?0:o.h);if(type==='low')o.h=28;else if(type==='crate')o.h=44;else o.h=56;obstacles.push(o);}
 
+function spawnEnemy(){const lane=Math.random()*0.35+0.3;const type=Math.random()<0.55?'fly':'ground';const e={x:W+40,y:0,w:0,h:0,type,taken:false};if(type==='fly'){e.y=H*lane-24;e.w=40;e.h=36;e.vx=-speed*3.4;e.vy=rand(-90,90);e.baseY=e.y;}
+else{e.y=H*lane-0;e.w=38;e.h=38;e.vx=-speed*2.8;e.phase=rand(0,6.28);}enemies.push(e);}
 function spawnCoin(){const lane=Math.random()*0.35+0.3;coins.push({x:W+20,y:H*lane,w:24,h:24,value:10,taken:false});}
+function spawnBoss(){if(bossActive) return;const boss={x:W+100,y:H*0.18,w:96,h:80,hp:40,maxHp:40,frame:0,timer:0,attackTimer:1.2,vx:-speed*2.6,type:'boss'};enemies.push(boss);bossActive=true;bossEl.style.display='block';bossEl.textContent='BOSS';}
+function renderLives(){if(!livesEl) return; let out=''; for(let i=0;i<3;i++) out += i < lives ? '♥' : '♡'; livesEl.textContent = out;}
 
 function addParticles(x,y,color,count=6){for(let i=0;i<count;i++){particles.push({x,y,vx:rand(-120,120),vy:rand(-180,-40),life:0.5,maxLife:0.5,color,size:rand(2,5)});}}
 
@@ -195,7 +209,7 @@ function addText(x,y,text){texts.push({x,y,text,life:0.8,maxLife:0.8});}
 
 function doJump(){if(state==='dead'||state==='hurt')return;ensureAudio();if(state==='run'||state==='idle'){player.vy=JUMP;player.onGround=false;state='jump';player.jumps=1;playSound('jump.wav',0.7);addParticles(player.x+player.w/2,player.y+player.h,'#66FCF1',4);}else if(state==='jump'||state==='double_jump'){if(player.jumps<MAX_JUMPS){player.vy=DJUMP;state='double_jump';player.jumps+=1;playSound('double_jump.wav',0.6);addParticles(player.x+player.w/2,player.y+player.h,'#45A29E',5);}}}
 
-function doHurt(){if(player.invuln>0||state==='dead')return;state='hurt';player.invuln=1.2;combo=0;comboTimer=0;playSound('hit.wav',1.0);addParticles(player.x+player.w/2,player.y+player.h/2,'#ff4444',10);camShake=0.25;}
+function doHurt(){if(invulnTimer>0||state==='dead')return;state='hurt';invulnTimer=1.4;lives-=1;renderLives();combo=0;comboTimer=0;playSound('hit.wav',1.0);addParticles(player.x+player.w/2,player.y+player.h/2,'#ff4444',10);camShake=0.25;if(lives<=0){lives=0;gameOver();}}
 
 function clampImageArgs(name,a){
   if(!spriteSheet.complete || !spriteSheet.naturalWidth) return null;
@@ -220,11 +234,21 @@ function update(dt){
   if(spawnTimer<=0){
     spawnTimer=rand(0.6,1.6)-speed*0.04;
     if(spawnTimer<0.35)spawnTimer=0.35;
-    if(Math.random()<0.75)spawnObstacle();else spawnCoin();
+    let pick=Math.random();
+    if(pick<0.55)spawnObstacle();
+    else if(pick<0.8)spawnEnemy();
+    else spawnCoin();
+    if(!bossActive && distance>140 && Math.random()<0.0025) spawnBoss();
   }
 
   for(let i=obstacles.length-1;i>=0;i--){const o=obstacles[i];o.x-=speed*2.8*dt;if(o.x+o.w<-10)obstacles.splice(i,1);}
   for(let i=coins.length-1;i>=0;i--){const c=coins[i];c.x-=speed*2.8*dt;if(c.x+c.w<-10)coins.splice(i,1);}
+  for(let i=enemies.length-1;i>=0;i--){const en=enemies[i];if(en.type==='boss'){en.frame+=dt;if(en.attackTimer>0)en.attackTimer-=dt; if(en.x>W*0.35 && speed<12)speed=12;}
+else if(en.type==='fly'){en.y=en.baseY+Math.sin(en.timer+=dt)*28;}else{en.y=H*0.82-(en.h+Math.abs(Math.sin(en.phase+=dt*2.5))*22);}en.x+=en.vx*dt;if(en.x+en.w<-20){enemies.splice(i,1);if(en.type==='boss'){bossActive=false;if(bossEl)bossEl.style.display='none';}}}
+  for(let i=particles.length-1;i>=0;i--){const p=particles[i];p.life-=dt;p.x+=p.vx*dt;p.y+=p.vy*dt;p.vy+=400*dt;if(p.life<=0)particles.splice(i,1);}
+  for(let i=texts.length-1;i>=0;i--){const t=texts[i];t.life-=dt;t.y-=60*dt;if(t.life<=0)texts.splice(i,1);}
+  for(let i=enemies.length-1;i>=0;i--){const en=enemies[i];const hitBox={x:en.x,y:en.y,w:en.w,h:en.h};if(en.hp!==undefined){if(rectsHit(player,hitBox)&&en.attackTimer<=0){en.hp-=1;en.attackTimer=0.9;doHurt();if(en.hp<=0){enemies.splice(i,1);bossActive=false;if(bossEl)bossEl.style.display='none';}}}
+else if(rectsHit(player,hitBox)){doHurt();enemies.splice(i,1);}}
 
   if(state==='run'||state==='jump'||state==='double_jump'||state==='hurt'){
     const down=keys.has('ArrowDown')||keys.has('KeyS')||ducking;
@@ -245,7 +269,6 @@ function update(dt){
 
   if(player.invuln>0)player.invuln-=dt;
   if(state==='run'||state==='jump'||state==='double_jump'||state==='hurt'){speed+=(2*dt)/(5*16.67);if(speed>14)speed=14;}
-
   scoreEl.textContent=String(score);
   comboEl.textContent=String(combo);
 }
@@ -332,6 +355,7 @@ HTML = f"""<!DOCTYPE html>
   <div id="hud">
     <div id="score">SCORE <span id="score-val">0</span></div>
     <div id="combo">COMBO <span id="combo-val">0</span></div>
+    <div id="lives" aria-label="lives"></div>
   </div>
   <div id="overlay" class="hidden">
     <div id="panel">

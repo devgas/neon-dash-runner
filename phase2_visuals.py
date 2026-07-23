@@ -257,6 +257,40 @@ assets['btn_hover'] = save_png(fig('btn_hover.png'), make_button('hover'))
 assets['btn_pressed'] = save_png(fig('btn_pressed.png'), make_button('pressed'))
 assets['gameover_panel'] = save_png(fig('gameover_panel.png'), make_game_over_panel())
 
+# Enemy sprites
+def make_enemy_fly():
+    img = Image.new('RGBA', (40, 40), 0)
+    draw = ImageDraw.Draw(img)
+    draw.ellipse([8, 12, 32, 28], fill='#2a0a0a', outline='#ff4444', width=2)
+    draw.polygon([(8, 20), (2, 16), (2, 24)], fill='#ff4444')
+    draw.polygon([(32, 20), (38, 16), (38, 24)], fill='#ff4444')
+    draw.ellipse([14, 16, 20, 22], fill='#ff4444')
+    draw.ellipse([20, 16, 26, 22], fill='#ff4444')
+    return img
+
+def make_enemy_ground():
+    img = Image.new('RGBA', (44, 44), 0)
+    draw = ImageDraw.Draw(img)
+    draw.rounded_rectangle([6, 14, 38, 36], radius=6, fill='#1a0a2e', outline='#ff44ff', width=2)
+    draw.ellipse([12, 8, 32, 24], fill='#1a0a2e', outline='#ff44ff', width=2)
+    draw.ellipse([16, 12, 20, 18], fill='#ff44ff')
+    draw.ellipse([24, 12, 28, 18], fill='#ff44ff')
+    draw.line([(18, 24), (14, 36)], fill='#ff44ff', width=3)
+    draw.line([(26, 24), (30, 36)], fill='#ff44ff', width=3)
+    return img
+
+def make_heart(full=True):
+    img = Image.new('RGBA', (24, 24), 0)
+    draw = ImageDraw.Draw(img)
+    color = '#ff4477' if full else '#2a1a25'
+    draw.polygon([(12, 20), (2, 12), (2, 6), (8, 4), (12, 8), (16, 4), (22, 6), (22, 12)], fill=color, outline='#ff4477' if full else '#442233', width=2)
+    return img
+
+assets['enemy_fly'] = save_png(fig('enemy_fly.png'), make_enemy_fly())
+assets['enemy_ground'] = save_png(fig('enemy_ground.png'), make_enemy_ground())
+assets['heart_full'] = save_png(fig('heart_full.png'), make_heart(True))
+assets['heart_empty'] = save_png(fig('heart_empty.png'), make_heart(False))
+
 print(f"Generated {len(assets)} visual assets.")
 
 # Save manifest
