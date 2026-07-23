@@ -43,7 +43,7 @@ canvas{display:block;width:100vw;height:100vh;background:#0B0C10}
 .hidden{display:none!important}
 #hud .heart.lost{opacity:.25}
 
-#touch-top,#touch-bottom{position:absolute;left:0;right:0;z-index:20;touch-action:none}
+#touch-top,#touch-bottom{position:absolute;left:0;right:0;z-index:5;touch-action:none}
 #touch-top{top:0;height:55%}
 #touch-bottom{bottom:0;height:45%}
 
@@ -122,8 +122,8 @@ const touchBottom=document.createElement('div');
 touchBottom.id='touch-bottom';
 document.body.appendChild(touchTop);
 document.body.appendChild(touchBottom);
-function onJumpStart(e){e.preventDefault();ensureAudio();if(['idle','run','jump','double_jump','hurt'].includes(state))doJump();}
-function onDuckStart(e){e.preventDefault();ensureAudio();ducking=true;}
+function onJumpStart(e){const t=e.target;if(t&&t.tagName==='BUTTON')return;e.preventDefault();ensureAudio();if(['idle','run','jump','double_jump','hurt'].includes(state))doJump();}
+function onDuckStart(e){const t=e.target;if(t&&t.tagName==='BUTTON')return;e.preventDefault();ensureAudio();ducking=true;}
 function onDuckEnd(e){ducking=false;}
 [ [touchTop,'touchstart',onJumpStart],[touchTop,'touchend',onDuckEnd],[touchBottom,'touchstart',onDuckStart],[touchBottom,'touchend',onDuckEnd],[touchBottom,'touchmove',e=>e.preventDefault()] ].forEach(([el,t,fn])=>el.addEventListener(t,fn,{passive:t==='touchstart'?false:true}));
 
@@ -154,7 +154,7 @@ const MAX_JUMPS=2;
 
 let player={x:0,y:0,w:PLAYER_W,h:PLAYER_H_STAND,vy:0,onGround:true,invuln:0,jumps:0};
 
-function reset(){state='run';runFrame=0;distance=0;score=0;combo=0;comboTimer=0;speed=6;obstacles=[];coins=[];particles=[];texts=[];camShake=0;ducking=false;player.x=W*0.18;player.y=H*GROUND_RATIO-player.h;player.vy=0;player.onGround=true;player.invuln=0;player.jumps=0;player.w=PLAYER_W;player.h=PLAYER_H_STAND;spawnTimer=1;overlay.classList.add('hidden');hint.textContent='SPACE / TAP to start';scoreEl.textContent='0';comboEl.textContent='0';ensureAudio();playMusic('gameplay_loop.wav');}
+function reset(){state='run';runFrame=0;distance=0;score=0;combo=0;comboTimer=0;speed=6;obstacles=[];coins=[];particles=[];texts=[];camShake=0;ducking=false;player.x=W*0.18;player.y=H*GROUND_RATIO-player.h;player.vy=0;player.onGround=true;player.invuln=0;player.jumps=0;player.w=PLAYER_W;player.h=PLAYER_H_STAND;spawnTimer=1;overlay.classList.add('hidden');scoreEl.textContent='0';comboEl.textContent='0';ensureAudio();playMusic('gameplay_loop.wav');}
 
 function gameOver(){state='dead';playSound('hit.wav',1.2);playSound('gameover_sting.wav',0.9);if(score>highScore){highScore=score;localStorage.setItem('neonDashHigh',String(highScore));}finalScoreEl.textContent=String(score);bestScoreEl.textContent='BEST '+String(highScore);overlay.classList.remove('hidden');}
 

@@ -1,0 +1,7 @@
+{
+  "version": 2,
+  "outputDirectory": "dist",
+  "routes": [
+    { "src": "/(?!dist/).*", "statusCode": 302, "headers": { "Location": "/dist/index.html" } }
+  ]
+}
