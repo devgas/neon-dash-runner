@@ -106,6 +106,7 @@ const obstacleTopImg=loadImage(IMG.obstacle_top_png);
 const obstacleCrateImg=loadImage(IMG.obstacle_crate_png);
 const enemyFlyImg=loadImage(IMG.enemy_fly_png);
 const enemyGroundImg=loadImage(IMG.enemy_ground_png);
+const bossImg=loadImage(IMG.boss_0_png);
 const ATLAS = {""" + ','.join(f'"{k}":{{x:{x},y:{y},w:48,h:48}}' for k,(x,y) in ATLAS.items()) + r"""};
 
 let actx=null;
@@ -164,7 +165,7 @@ const MAX_JUMPS=2;
 
 let player={x:0,y:0,w:PLAYER_W,h:PLAYER_H_STAND,vy:0,onGround:true,invuln:0,jumps:0};
 
-function reset(){state='run';runFrame=0;distance=0;score=0;combo=0;comboTimer=0;speed=6;obstacles=[];enemies=[];coins=[];particles=[];texts=[];camShake=0;ducking=false;player.x=W*0.18;player.y=H*GROUND_RATIO-player.h;player.vy=0;player.onGround=true;player.invuln=0;player.jumps=0;player.w=PLAYER_W;player.h=PLAYER_H_STAND;spawnTimer=1;overlay.classList.add('hidden');scoreEl.textContent='0';comboEl.textContent='0';lives=3;invulnTimer=0;bossActive=false;bossHp=0;renderLives();bossEl.style.display='none';ensureAudio();playMusic('gameplay_loop.wav');}
+function reset(){state='run';runFrame=0;distance=0;score=0;combo=0;comboTimer=0;speed=6;obstacles=[];enemies=[];coins=[];particles=[];texts=[];camShake=0;ducking=false;player.x=W*0.18;player.y=H*GROUND_RATIO-player.h;player.vy=0;player.onGround=true;player.invuln=0;player.jumps=0;player.w=PLAYER_W;player.h=PLAYER_H_STAND;spawnTimer=1;overlay.classList.add('hidden');scoreEl.textContent='0';comboEl.textContent='0';lives=3;invulnTimer=0;bossActive=false;bossHp=0;renderLives();if(bossEl){bossEl.style.display='none';}ensureAudio();playMusic('gameplay_loop.wav');}
 
 function gameOver(){state='dead';playSound('hit.wav',1.2);playSound('gameover_sting.wav',0.9);if(score>highScore){highScore=score;localStorage.setItem('neonDashHigh',String(highScore));}finalScoreEl.textContent=String(score);bestScoreEl.textContent='BEST '+String(highScore);overlay.classList.remove('hidden');}
 
@@ -200,7 +201,7 @@ function spawnObstacle(){const r=Math.random();let type='barrier';if(r<0.25)type
 function spawnEnemy(){const lane=Math.random()*0.35+0.3;const type=Math.random()<0.55?'fly':'ground';const e={x:W+40,y:0,w:0,h:0,type,taken:false};if(type==='fly'){e.y=H*lane-24;e.w=40;e.h=36;e.vx=-speed*3.4;e.vy=rand(-90,90);e.baseY=e.y;}
 else{e.y=H*lane-0;e.w=38;e.h=38;e.vx=-speed*2.8;e.phase=rand(0,6.28);}enemies.push(e);}
 function spawnCoin(){const lane=Math.random()*0.35+0.3;coins.push({x:W+20,y:H*lane,w:24,h:24,value:10,taken:false});}
-function spawnBoss(){if(bossActive) return;const boss={x:W+100,y:H*0.18,w:96,h:80,hp:40,maxHp:40,frame:0,timer:0,attackTimer:1.2,vx:-speed*2.6,type:'boss'};enemies.push(boss);bossActive=true;bossEl.style.display='block';bossEl.textContent='BOSS';}
+function spawnBoss(){if(bossActive) return;const boss={x:W+100,y:H*0.18,w:96,h:80,hp:40,maxHp:40,frame:0,timer:0,attackTimer:1.2,vx:-speed*2.6,type:'boss'};enemies.push(boss);bossActive=true;if(bossEl){bossEl.style.display='block';bossEl.textContent='BOSS';}}
 function renderLives(){if(!livesEl) return; let out=''; for(let i=0;i<3;i++) out += i < lives ? '♥' : '♡'; livesEl.textContent = out;}
 
 function addParticles(x,y,color,count=6){for(let i=0;i<count;i++){particles.push({x,y,vx:rand(-120,120),vy:rand(-180,-40),life:0.5,maxLife:0.5,color,size:rand(2,5)});}}
@@ -254,6 +255,9 @@ else if(rectsHit(player,hitBox)){doHurt();enemies.splice(i,1);}}
     const down=keys.has('ArrowDown')||keys.has('KeyS')||ducking;
     if(down){player.ducking=true;player.h=PLAYER_H_DUCK;player.y=H*GROUND_RATIO-PLAYER_H_DUCK;player.w=PLAYER_W;}
     else{player.ducking=false;player.w=PLAYER_W;player.h=PLAYER_H_STAND;player.y=Math.min(player.y,H*GROUND_RATIO-PLAYER_H_STAND);}
+    const left=keys.has('ArrowLeft')||keys.has('KeyA');
+    const right=keys.has('ArrowRight')||keys.has('KeyD');
+    if(left||right){const ms=220*dt;if(left)player.x-=ms;if(right)player.x+=ms;if(player.x<0)player.x=0;if(player.x+player.w>W)player.x=W-player.w;}
     if(!player.onGround){
       player.vy+=GRAVITY*dt;player.y+=player.vy*dt;
       const ground=H*GROUND_RATIO-(player.ducking?PLAYER_H_DUCK:PLAYER_H_STAND);
@@ -305,6 +309,9 @@ function render(){
   const wrapX=distance*32;drawBg(wrapX);
   for(let i=0;i<coins.length;i++){const c=coins[i];if(c.taken)continue;ctx.drawImage(coinImg,c.x,c.y,c.w,c.h);}
   for(let i=0;i<obstacles.length;i++){const o=obstacles[i];let img=obstacleImg;if(o.type==='low')img=obstacleTopImg;if(o.type==='crate')img=obstacleCrateImg;ctx.drawImage(img,o.x,o.y,o.w,o.h);}
+  for(let i=0;i<enemies.length;i++){const en=enemies[i]; if(en.type==='boss'){ if(bossImg.complete) ctx.drawImage(bossImg,en.x,en.y,en.w,en.h); }
+else if(en.type==='fly'){ if(enemyFlyImg.complete) ctx.drawImage(enemyFlyImg,en.x,en.y,en.w,en.h); }
+else{ if(enemyGroundImg.complete) ctx.drawImage(enemyGroundImg,en.x,en.y,en.w,en.h); }}
   for(let i=0;i<particles.length;i++){const p=particles[i];ctx.globalAlpha=Math.max(0,p.life/p.maxLife);ctx.fillStyle=p.color;ctx.beginPath();ctx.arc(p.x,p.y,p.size,0,Math.PI*2);ctx.fill();}
   ctx.globalAlpha=1;
   let sprite='run0';
@@ -356,6 +363,7 @@ HTML = f"""<!DOCTYPE html>
     <div id="score">SCORE <span id="score-val">0</span></div>
     <div id="combo">COMBO <span id="combo-val">0</span></div>
     <div id="lives" aria-label="lives"></div>
+    <div id="boss-health" style="display:none"></div>
   </div>
   <div id="overlay" class="hidden">
     <div id="panel">
