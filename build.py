@@ -367,5 +367,5 @@ window.__neonLogs.push('script-end');
 </body>
 </html>"""
 
-(DIST / 'index.html').write_text(HTML, encoding='utf-8')
+with open('dist/index.html','w',encoding='utf-8') as f: f.write(HTML)
 print('Built', DIST / 'index.html', (DIST / 'index.html').stat().st_size)
