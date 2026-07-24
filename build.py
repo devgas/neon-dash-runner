@@ -183,7 +183,7 @@ const menuEl=document.getElementById('menu');
 const menuStart=document.getElementById('menu-start');
 const menuAudio=document.getElementById('menu-audio');
 const menuHint=document.querySelector('.menu-hint');
-let audioEnabled=false;
+let audioEnabled=true;
 pauseBtn?.addEventListener('click',()=>togglePause());
 
 function showMenu(){state='idle';menuEl.classList.remove('hidden');overlay.classList.add('hidden');hint.textContent='TAP START';if(menuHint)menuHint.textContent='TAP ANYWHERE TO START';paused=false;}
@@ -236,7 +236,8 @@ function update(dt){
   if(state==='dead') return;
   if(paused) return;
   if(state!=='idle'){
-    distance+=speed*dt/16.67; score=Math.floor(distance);
+    distance+=speed*dt/16.67;
+    score+=dt*15;
   }
   comboTimer=Math.max(0,comboTimer-dt);
   if(comboTimer<=0) combo=0;
@@ -245,10 +246,13 @@ function update(dt){
   if(spawnTimer<=0){
     spawnTimer=rand(0.6,1.6)-speed*0.04;
     if(spawnTimer<0.35)spawnTimer=0.35;
-    let pick=Math.random();
-    if(pick<0.55)spawnObstacle();
-    else if(pick<0.8)spawnEnemy();
-    else spawnCoin();
+    let activeCount=obstacles.length+enemies.length+coins.length;
+    if(activeCount<16){
+      let pick=Math.random();
+      if(pick<0.55)spawnObstacle();
+      else if(pick<0.8)spawnEnemy();
+      else spawnCoin();
+    }
     if(!bossActive && distance>140 && Math.random()<0.0025) spawnBoss();
   }
 
