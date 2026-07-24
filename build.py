@@ -132,10 +132,10 @@ const touchBottom=document.createElement('div');
 touchBottom.id='touch-bottom';
 document.body.appendChild(touchTop);
 document.body.appendChild(touchBottom);
-function onJumpStart(e){const t=e.target;if(t&&t.tagName==='BUTTON')return;e.preventDefault();ensureAudio();if(['idle','run','jump','double_jump','hurt'].includes(state))doJump();}
-function onDuckStart(e){const t=e.target;if(t&&t.tagName==='BUTTON')return;e.preventDefault();ensureAudio();ducking=true;}
-function onDuckEnd(e){ducking=false;}
-[ [touchTop,'touchstart',onJumpStart],[touchTop,'touchend',onDuckEnd],[touchBottom,'touchstart',onDuckStart],[touchBottom,'touchend',onDuckEnd],[touchBottom,'touchmove',e=>e.preventDefault()] ].forEach(([el,t,fn])=>el.addEventListener(t,fn,{passive:t==='touchstart'?false:true}));
+function onTopStart(e){const t=e.target;if(t&&t.tagName==='BUTTON')return;e.preventDefault();ensureAudio();if(['idle','run','jump','double_jump','hurt'].includes(state))doJump();}
+function onBottomStart(e){const t=e.target;if(t&&t.tagName==='BUTTON')return;e.preventDefault();e.stopPropagation();ensureAudio();ducking=true;}
+function onTouchEnd(e){ducking=false;}
+[ [touchTop,'touchstart',onTopStart],[touchTop,'touchend',onTouchEnd],[touchBottom,'touchstart',onBottomStart],[touchBottom,'touchend',onTouchEnd],[touchBottom,'touchmove',e=>e.preventDefault()] ].forEach(([el,t,fn])=>el.addEventListener(t,fn,{passive:t==='touchstart'?false:true}));
 
 let state='idle';
 let runFrame=0;
@@ -210,6 +210,7 @@ function spawnObstacle(){const r=Math.random();let type='barrier';if(r<0.25)type
 function spawnEnemy(){const lane=Math.random()*0.35+0.3;const type=Math.random()<0.55?'fly':'ground';const e={x:W+40,y:0,w:0,h:0,type,taken:false,hitExtra:0};if(type==='fly'){e.y=H*lane-24;e.w=40;e.h=36;e.vx=-speed*3.4;e.vy=rand(-90,90);e.baseY=e.y;}
 else{e.y=H*lane-0;e.w=38;e.h=38;e.vx=-speed*2.8;e.phase=rand(0,6.28);}enemies.push(e);}
 function spawnBoss(){if(bossActive) return;const boss={x:W+100,y:H*0.18,w:96,h:80,hp:40,maxHp:40,frame:0,timer:0,attackTimer:1.2,vx:-speed*2.6,type:'boss',hitExtra:0};enemies.push(boss);bossActive=true;if(bossEl){bossEl.style.display='block';bossEl.textContent='BOSS';}}
+function spawnCoin(){const lane=Math.random()*0.35+0.3;coins.push({x:W+20,y:H*lane,w:24,h:24,value:10,taken:false});}
 function renderLives(){if(!livesEl) return; let out=''; for(let i=0;i<3;i++) out += i < lives ? '♥' : '♡'; livesEl.textContent = out;}
 
 function addParticles(x,y,color,count=6){for(let i=0;i<count;i++){particles.push({x,y,vx:rand(-120,120),vy:rand(-180,-40),life:0.5,maxLife:0.5,color,size:rand(2,5)});}}
@@ -270,6 +271,8 @@ else if(rectsHit(player,hitBox)){doHurt();enemies.splice(i,1);}}
     if(!player.onGround){
       player.vy+=GRAVITY*dt;player.y+=player.vy*dt;
       const ground=H*GROUND_RATIO-(player.ducking?PLAYER_H_DUCK:PLAYER_H_STAND);
+      if(state==='double_jump' && player.vy>0) state='fall';
+      else if(state==='jump' && player.vy>0) state='fall';
       if(player.y>=ground){player.y=ground;player.vy=0;player.onGround=true;state='run';player.jumps=0;}
     }
   }
@@ -343,7 +346,8 @@ function loop(ts){
   if(dt>0.1)dt=0.1;
   lastTime=ts;
   if(state==='idle'){runFrame+=dt;render();}
-  else if(state==='run'||state==='jump'||state==='double_jump'||state==='hurt'){runFrame+=dt*60;update(dt);render();if(player.y>H+100)gameOver();}
+  else if(state==='run'||state==='jump'||state==='double_jump'||state==='fall'||state==='hurt'){runFrame+=dt*60;if(state!=='dead')update(dt);render();if(player.y>H+100)gameOver();}
+  else if(state==='dead'){render();}
   requestAnimationFrame(loop);
 }
 
