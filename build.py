@@ -261,7 +261,7 @@ else if(en.type==='fly'){en.y=en.baseY+Math.sin(en.timer+=dt)*28;}else{en.y=H*0.
   for(let i=enemies.length-1;i>=0;i--){const en=enemies[i];const hitBox={x:en.x+(en.hitExtra||0),y:en.y+(en.hitExtra||0),w:en.w-((en.hitExtra||0)*2),h:en.h-((en.hitExtra||0)*2)};if(en.hp!==undefined){if(rectsHit(player,hitBox)&&en.attackTimer<=0){en.hp-=1;en.attackTimer=0.9;doHurt();if(en.hp<=0){enemies.splice(i,1);bossActive=false;if(bossEl)bossEl.style.display='none';}}}
 else if(rectsHit(player,hitBox)){doHurt();enemies.splice(i,1);}}
 
-  if(state==='run'||state==='jump'||state==='double_jump'||state==='hurt'){
+  if(state==='run'||state==='jump'||state==='double_jump'||state==='fall'||state==='hurt'){
     const down=keys.has('ArrowDown')||keys.has('KeyS')||ducking;
     if(down){player.ducking=true;player.h=PLAYER_H_DUCK;player.y=H*GROUND_RATIO-PLAYER_H_DUCK;player.w=PLAYER_W;}
     else{player.ducking=false;player.w=PLAYER_W;player.h=PLAYER_H_STAND;player.y=Math.min(player.y,H*GROUND_RATIO-PLAYER_H_STAND);}
