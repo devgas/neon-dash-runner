@@ -26,6 +26,7 @@ export function createState() {
     obstacles: [],
     enemies: [],
     coins: [],
+    hearts: [],
     particles: [],
     texts: [],
     camShake: 0,
@@ -35,6 +36,7 @@ export function createState() {
     bossActive: false,
     bossHp: 0,
     bossMaxHp: 0,
+    gameOverCalled: false,
   };
 }
 

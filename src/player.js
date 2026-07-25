@@ -98,6 +98,7 @@ export function rectsHit(a, b) {
 export function checkCollisions(player, state) {
   let hurt = false;
   let died = false;
+  let heal = false;
   for (let i = 0; i < state.obstacles.length; i++) {
     const o = state.obstacles[i];
     if (!o.passed && rectsHit(player, o)) {
@@ -116,6 +117,16 @@ export function checkCollisions(player, state) {
       state.combo += 1;
       state.comboTimer = 2;
       state.score += c.value + state.combo * 2;
+    }
+  }
+  for (let i = 0; i < state.hearts.length; i++) {
+    const h = state.hearts[i];
+    if (!h.taken && rectsHit(player, h)) {
+      h.taken = true;
+      if (state.lives < 3) {
+        state.lives += 1;
+        heal = true;
+      }
     }
   }
   for (let i = state.enemies.length - 1; i >= 0; i--) {
@@ -147,5 +158,5 @@ export function checkCollisions(player, state) {
       state.enemies.splice(i, 1);
     }
   }
-  return { hurt, died };
+  return { hurt, died, heal };
 }

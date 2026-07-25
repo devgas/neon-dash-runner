@@ -88,6 +88,18 @@ export function render(
     ctx.restore();
   }
 
+  for (let i = 0; i < state.hearts.length; i++) {
+    const h = state.hearts[i];
+    if (h.taken) continue;
+    ctx.save();
+    ctx.translate(h.x + h.w / 2, h.y + h.h / 2);
+    ctx.shadowBlur = 12;
+    ctx.shadowColor = '#ff4466';
+    ctx.drawImage(images.heartImg, -h.w / 2, -h.h / 2, h.w, h.h);
+    ctx.shadowBlur = 0;
+    ctx.restore();
+  }
+
   for (let i = 0; i < state.obstacles.length; i++) {
     const o = state.obstacles[i];
     let img = images.obstacleImg;

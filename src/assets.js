@@ -9,6 +9,7 @@ export function loadImages() {
     BG2: img('/visual/layer2_ground.png'),
     spriteSheet: img('/visual/spritesheet.png'),
     coinImg: img('/visual/coin.png'),
+    heartImg: img('/visual/heart_full.png'),
     obstacleImg: img('/visual/obstacle.png'),
     obstacleTopImg: img('/visual/obstacle_top.png'),
     obstacleCrateImg: img('/visual/obstacle_crate.png'),

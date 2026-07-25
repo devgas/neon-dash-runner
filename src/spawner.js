@@ -75,3 +75,15 @@ export function spawnCoin(W, H) {
     taken: false,
   };
 }
+
+export function spawnHeart(W, H) {
+  const lane = Math.random() * 0.35 + 0.3;
+  const arcHeight = Math.random() * 60 + 30;
+  return {
+    x: W + 20,
+    y: H * lane - arcHeight,
+    w: 20,
+    h: 20,
+    taken: false,
+  };
+}

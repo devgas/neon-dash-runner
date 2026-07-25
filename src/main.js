@@ -2,7 +2,7 @@ import { createState, createPlayer, CONSTANTS } from './state.js';
 import { loadImages, AUDIO_PATHS } from './assets.js';
 import { ensureAudio, playSound, playMusic, stopMusic, setAudioEnabled, isAudioEnabled } from './audio.js';
 import { setupInput } from './input.js';
-import { spawnObstacle, spawnEnemy, spawnBoss, spawnCoin } from './spawner.js';
+import { spawnObstacle, spawnEnemy, spawnBoss, spawnCoin, spawnHeart } from './spawner.js';
 import {
   resetPlayer,
   doJump,
@@ -78,12 +78,13 @@ function update(dt) {
     spawnTimer = rand(0.6, 1.6) - state.speed * 0.04;
     if (spawnTimer < 0.35) spawnTimer = 0.35;
     const activeCount =
-      state.obstacles.length + state.enemies.length + state.coins.length;
+      state.obstacles.length + state.enemies.length + state.coins.length + state.hearts.length;
     if (activeCount < 16) {
       const pick = Math.random();
-      if (pick < 0.55) state.obstacles.push(spawnObstacle(W, H));
-      else if (pick < 0.8) state.enemies.push(spawnEnemy(W, H, state.speed));
-      else state.coins.push(spawnCoin(W, H));
+      if (pick < 0.50) state.obstacles.push(spawnObstacle(W, H));
+      else if (pick < 0.75) state.enemies.push(spawnEnemy(W, H, state.speed));
+      else if (pick < 0.90) state.coins.push(spawnCoin(W, H));
+      else state.hearts.push(spawnHeart(W, H));
     }
     if (!state.bossActive && state.distance > 140 && Math.random() < 0.0025) {
       state.enemies.push(spawnBoss(W, H, state.speed));
@@ -105,6 +106,11 @@ function update(dt) {
     const c = state.coins[i];
     c.x -= state.speed * 2.8 * dt;
     if (c.x + c.w < -10) state.coins.splice(i, 1);
+  }
+  for (let i = state.hearts.length - 1; i >= 0; i--) {
+    const h = state.hearts[i];
+    h.x -= state.speed * 2.8 * dt;
+    if (h.x + h.w < -10) state.hearts.splice(i, 1);
   }
   for (let i = state.enemies.length - 1; i >= 0; i--) {
     const en = state.enemies[i];
@@ -153,6 +159,9 @@ function update(dt) {
     playSound('hit.wav', 1.0);
     addParticles(player.x + player.w / 2, player.y + player.h / 2, '#ff4444', 10);
     state.camShake = 0.25;
+    renderLives();
+  }
+  if (collision.heal) {
     renderLives();
   }
 
@@ -207,6 +216,8 @@ function gameLoop(ts) {
 }
 
 function gameOver() {
+  if (state.gameOverCalled) return;
+  state.gameOverCalled = true;
   state.phase = 'dead';
   stopMusic();
   playSound('hit.wav', 1.2);
@@ -246,6 +257,7 @@ function reset() {
   state.obstacles = [];
   state.enemies = [];
   state.coins = [];
+  state.hearts = [];
   state.particles = [];
   state.texts = [];
   state.camShake = 0;
@@ -253,6 +265,7 @@ function reset() {
   state.bossActive = false;
   state.bossHp = 0;
   state.bossMaxHp = 0;
+  state.gameOverCalled = false;
   spawnTimer = 1;
 
   player = resetPlayer(W, H);
