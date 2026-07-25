@@ -22,14 +22,14 @@ canvas{display:block;width:100vw;height:100vh;background:#0B0C10}
 #touch-top,#touch-bottom{position:absolute;left:0;right:0;z-index:5;touch-action:none}
 #touch-top{top:0;height:55%}
 #touch-bottom{bottom:0;height:45%}
-#mobile-controls{position:absolute;bottom:12px;left:0;right:0;display:none;align-items:center;justify-content:space-between;padding:0 16px;z-index:6;pointer-events:none}
-#mobile-left,#mobile-right{display:flex;gap:10px;pointer-events:auto}
+#mobile-controls{position:absolute;bottom:8px;left:0;right:0;display:none;align-items:center;justify-content:space-between;padding:0 12px;z-index:6;pointer-events:none}
+#mobile-left,#mobile-right{display:flex;gap:8px;pointer-events:auto}
 #mobile-jump{pointer-events:auto}
-.mbtn{width:64px;height:64px;border-radius:50%;border:2px solid rgba(102,252,241,0.6);background:rgba(31,40,51,0.7);color:#66FCF1;font-size:22px;display:flex;align-items:center;justify-content:center;user-select:none;touch-action:none}
+.mbtn{width:48px;height:48px;border-radius:50%;border:2px solid rgba(102,252,241,0.6);background:rgba(31,40,51,0.75);color:#66FCF1;font-size:18px;display:flex;align-items:center;justify-content:center;user-select:none;touch-action:none}
 .mbtn:active{background:rgba(42,58,74,0.9)}
-#mobile-jump .mbtn{width:80px;height:80px;font-size:14px;letter-spacing:1px}
+#mobile-jump .mbtn{width:60px;height:60px;font-size:12px;letter-spacing:1px}
 @media (hover:none) and (pointer:coarse){#mobile-controls{display:flex}}
-@media (max-width:480px){#mobile-controls{bottom:8px;padding:0 8px}.mbtn{width:56px;height:56px;font-size:18px}#mobile-jump .mbtn{width:72px;height:72px}}
+@media (max-width:480px){#mobile-controls{bottom:6px;padding:0 8px}.mbtn{width:42px;height:42px;font-size:16px}#mobile-jump .mbtn{width:52px;height:52px}}
 
 #menu{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(11,12,16,.85);backdrop-filter:blur(12px);pointer-events:auto;z-index:10}
 #menu-panel{background:rgba(11,12,16,.9);border:1px solid #66FCF1;border-radius:14px;padding:26px 28px;text-align:center;box-shadow:0 0 28px rgba(102,252,241,.25);width:min(92vw, 420px)}

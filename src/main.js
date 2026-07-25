@@ -351,6 +351,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
   btn.addEventListener('click', () => {
     ensureAudio();
+    if (state.phase === 'dead') {
+      reset();
+      return;
+    }
     if (paused) {
       togglePause();
       return;
@@ -415,6 +419,9 @@ document.addEventListener('DOMContentLoaded', () => {
           state.phase === 'double_jump' ? 5 : 4
         );
       }
+    }
+    if (state.phase === 'dead' && ['Space', 'ArrowUp', 'KeyW', 'Enter'].includes(e.code)) {
+      reset();
     }
     if (['Escape', 'KeyP'].includes(e.code)) togglePause();
   });
