@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
+  <title>NEON DASH</title>
+  <link rel="stylesheet" href="/src/style.css"/>
+</head>
+<body>
+  <canvas id="game" aria-label="NEON DASH game"></canvas>
+  <div id="ui">
+    <div id="hud">
+      <div>
+        <div>SCORE <span id="score-val">0</span></div>
+        <div id="combo">COMBO <span id="combo-val">0</span></div>
+      </div>
+      <div id="hud-right">
+        <button id="pause-btn" class="q">PAUSE</button>
+        <div>BEST <span id="best-val">0</span></div>
+        <div>COINS <span id="coins-val">0</span></div>
+        <div id="lives" aria-label="lives"></div>
+      </div>
+      <div id="boss-health" style="display:none"></div>
+    </div>
+    <div id="overlay" class="hidden">
+      <div id="panel">
+        <h1>NEON DASH</h1>
+        <p id="final-score">0</p>
+        <p id="best-score">BEST 0</p>
+        <button id="btn">RETRY</button>
+        <p id="hint">SPACE / TAP to start</p>
+      </div>
+    </div>
+    <div id="menu" class="hidden">
+      <div id="menu-panel">
+        <h1>NEON DASH</h1>
+        <p class="menu-hint">TAP ANYWHERE TO START</p>
+        <div class="menu-row">
+          <button id="menu-start">START</button>
+        </div>
+        <div class="menu-row">
+          <button id="menu-audio">AUDIO: OFF</button>
+        </div>
+        <p class="menu-sub">JUMP: tap top • DUCK: tap bottom</p>
+      </div>
+    </div>
+    <div id="mobile-controls">
+      <div id="mobile-left">
+        <div class="mbtn" id="m-left">◀</div>
+        <div class="mbtn" id="m-right">▶</div>
+      </div>
+      <div id="mobile-jump">
+        <div class="mbtn" id="m-jump">JUMP</div>
+      </div>
+    </div>
+  </div>
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>

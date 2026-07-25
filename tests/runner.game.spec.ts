@@ -12,6 +12,11 @@ test.describe('NEON DASH', () => {
     await page.click('#menu-start');
     await expect(page.locator('#menu')).not.toBeVisible();
 
+    await page.waitForFunction(
+      () => typeof distance !== 'undefined' && distance > 0,
+      { timeout: 3000 }
+    );
+
     const state = await page.evaluate(() => (
       typeof state !== 'undefined' && typeof distance !== 'undefined'
         ? { distance, paused }

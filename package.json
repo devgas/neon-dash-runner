@@ -1,6 +1,17 @@
 {
+  "name": "neon-dash-runner",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "node node_modules/@playwright/test/cli.js test",
+    "test:ui": "node node_modules/@playwright/test/cli.js test --ui"
+  },
   "devDependencies": {
-    "@playwright/mcp": "^0.0.78",
-    "@playwright/test": "^1.61.1"
+    "@playwright/test": "^1.61.1",
+    "vite": "^6.3.5"
   }
 }

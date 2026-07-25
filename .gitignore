@@ -1,5 +1,9 @@
 node_modules
-/.git
-.env
-*.log
-.vercel
+dist
+.idea
+.venv
+test-results
+*.pyc
+__pycache__
+.env.local
+.env.*.local
