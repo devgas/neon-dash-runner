@@ -7,7 +7,7 @@ export function spawnObstacle(W, H) {
   else if (r < 0.45) type = 'crate';
   else if (r < 0.55) type = 'low';
 
-  const lane = Math.random() * 0.35 + 0.3;
+  const lane = Math.random() * 0.25 + 0.55;
   const o = { x: W + 40, y: 0, w: 0, h: 0, type, passed: false };
 
   if (type === 'barrier' || type === 'double') o.w = 36;
@@ -23,7 +23,7 @@ export function spawnObstacle(W, H) {
 }
 
 export function spawnEnemy(W, H, speed) {
-  const lane = Math.random() * 0.35 + 0.3;
+  const lane = Math.random() * 0.25 + 0.55;
   const type = Math.random() < 0.55 ? 'fly' : 'ground';
   const e = { x: W + 40, y: 0, w: 0, h: 0, type, taken: false, hitExtra: 0 };
 
@@ -64,8 +64,8 @@ export function spawnBoss(W, H, speed) {
 }
 
 export function spawnCoin(W, H) {
-  const lane = Math.random() * 0.35 + 0.3;
-  const arcHeight = Math.random() * 80 + 40;
+  const lane = Math.random() * 0.25 + 0.5;
+  const arcHeight = Math.random() * 40 + 20;
   return {
     x: W + 20,
     y: H * lane - arcHeight,
@@ -77,8 +77,8 @@ export function spawnCoin(W, H) {
 }
 
 export function spawnHeart(W, H) {
-  const lane = Math.random() * 0.35 + 0.3;
-  const arcHeight = Math.random() * 60 + 30;
+  const lane = Math.random() * 0.25 + 0.5;
+  const arcHeight = Math.random() * 30 + 15;
   return {
     x: W + 20,
     y: H * lane - arcHeight,
