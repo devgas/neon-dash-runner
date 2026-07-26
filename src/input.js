@@ -56,6 +56,7 @@ export function setupInput(onJump) {
   const mLeft = document.getElementById('m-left');
   const mRight = document.getElementById('m-right');
   const mJump = document.getElementById('m-jump');
+  const mDown = document.getElementById('m-down');
 
   function bindMobile(el, fn) {
     if (!el) return;
@@ -76,6 +77,13 @@ export function setupInput(onJump) {
   bindMobile(mJump, (v) => {
     if (v) {
       onJump();
+    }
+  });
+  bindMobile(mDown, (v) => {
+    if (v) {
+      ducking = true;
+    } else {
+      ducking = false;
     }
   });
 

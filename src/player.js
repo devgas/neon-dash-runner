@@ -88,6 +88,18 @@ export function updatePhysics(player, W, H, dt, input, state) {
       player.onGround = true;
       state.phase = 'run';
       player.jumps = 0;
+      player.standOn = null;
+    }
+  } else if (player.standOn) {
+    const s = player.standOn;
+    const pcx = player.x + player.w / 2;
+    if (
+      player.y + player.h !== s.y ||
+      pcx < s.x - 4 ||
+      pcx > s.x + s.w + 4
+    ) {
+      player.onGround = false;
+      player.standOn = null;
     }
   }
 }
@@ -122,14 +134,8 @@ export function checkCollisions(player, state) {
       player.onGround = true;
       state.phase = 'run';
       player.jumps = 0;
+      player.standOn = o;
       continue;
-    }
-    if (!o.passed && rectsHit(player, o)) {
-      if (player.ducking && o.type === 'low') continue;
-      if (doHurt(player, state)) {
-        if (state.phase === 'dead') died = true;
-        else hurt = true;
-      }
     }
   }
 
@@ -158,14 +164,9 @@ export function checkCollisions(player, state) {
   for (let i = state.enemies.length - 1; i >= 0; i--) {
     const en = state.enemies[i];
     if (isTopCollision(player, en)) {
-      if (en.hp !== undefined) {
-        en.hp -= 1;
-        if (en.hp <= 0) {
-          state.enemies.splice(i, 1);
-          state.bossActive = false;
-        }
-      } else {
-        state.enemies.splice(i, 1);
+      state.enemies.splice(i, 1);
+      if (en.type === 'boss') {
+        state.bossActive = false;
       }
       player.y = en.y - player.h;
       player.vy = -180;
