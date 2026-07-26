@@ -375,14 +375,12 @@ function gameLoop(ts) {
   }
 
   function skipInitials() {
+    isNewHigh = false;
+    pendingScore = 0;
     document.getElementById('new-high').classList.add('hidden');
     document.getElementById('initials-row').classList.add('hidden');
     document.getElementById('skip-btn').style.display = 'none';
-    btn.textContent = 'RETRY';
-    hint.textContent = 'PRESS SPACE OR TAP RETRY';
-    menuBtn.style.display = '';
-    isNewHigh = false;
-    pendingScore = 0;
+    goToMenu();
   }
 
 function togglePause() {
@@ -588,6 +586,11 @@ document.addEventListener('DOMContentLoaded', () => {
   menuBtn?.addEventListener('click', () => {
     ensureAudio();
     goToMenu();
+  });
+
+  document.getElementById('skip-btn')?.addEventListener('click', () => {
+    ensureAudio();
+    skipInitials();
   });
 
   pauseBtn?.addEventListener('click', () => togglePause());
