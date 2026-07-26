@@ -148,7 +148,7 @@ function update(dt) {
     if (t.life <= 0) state.texts.splice(i, 1);
   }
 
-  const collision = checkCollisions(player, state);
+  const collision = checkCollisions(player, state, dt);
 
   if (state.phase === 'dead') {
     gameOver();
@@ -163,6 +163,9 @@ function update(dt) {
   }
   if (collision.heal) {
     renderLives();
+  }
+  if (collision.land) {
+    playSound('hit.wav', 0.5);
   }
 
   updatePhysics(player, W, H, dt, input, state);

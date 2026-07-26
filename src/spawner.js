@@ -8,7 +8,7 @@ export function spawnObstacle(W, H) {
   else if (r < 0.55) type = 'low';
 
   const lane = Math.random() * 0.35 + 0.3;
-  const o = { x: W + 40, y: 0, w: 0, h: 0, type, passed: false };
+  const o = { x: W + 40, y: 0, w: 0, h: 0, type, passed: false, landable: true };
 
   if (type === 'barrier' || type === 'double') o.w = 36;
   else if (type === 'crate') o.w = 44;
@@ -25,7 +25,7 @@ export function spawnObstacle(W, H) {
 export function spawnEnemy(W, H, speed) {
   const lane = Math.random() * 0.35 + 0.3;
   const type = Math.random() < 0.55 ? 'fly' : 'ground';
-  const e = { x: W + 40, y: 0, w: 0, h: 0, type, taken: false, hitExtra: 0 };
+  const e = { x: W + 40, y: 0, w: 0, h: 0, type, taken: false, hitExtra: 0, landable: true };
 
   if (type === 'fly') {
     e.y = H * lane - 24;

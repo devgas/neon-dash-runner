@@ -95,12 +95,33 @@ export function rectsHit(a, b) {
   return a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
 }
 
+function isTopCollision(player, obj) {
+  if (!obj.landable) return false;
+  if (player.vy <= 0) return false;
+  const playerBottom = player.y + player.h;
+  const tolerance = Math.max(6, Math.abs(player.vy) * 0.04);
+  if (Math.abs(playerBottom - obj.y) < tolerance) {
+    const pcx = player.x + player.w / 2;
+    return pcx > obj.x - 2 && pcx < obj.x + obj.w + 2;
+  }
+  return false;
+}
+
 export function checkCollisions(player, state) {
   let hurt = false;
   let died = false;
   let heal = false;
+
   for (let i = 0; i < state.obstacles.length; i++) {
     const o = state.obstacles[i];
+    if (!o.passed && isTopCollision(player, o)) {
+      player.y = o.y - player.h;
+      player.vy = 0;
+      player.onGround = true;
+      state.phase = 'run';
+      player.jumps = 0;
+      continue;
+    }
     if (!o.passed && rectsHit(player, o)) {
       if (player.ducking && o.type === 'low') continue;
       if (doHurt(player, state)) {
@@ -109,6 +130,7 @@ export function checkCollisions(player, state) {
       }
     }
   }
+
   for (let i = 0; i < state.coins.length; i++) {
     const c = state.coins[i];
     if (!c.taken && rectsHit(player, c)) {
@@ -119,6 +141,7 @@ export function checkCollisions(player, state) {
       state.score += c.value + state.combo * 2;
     }
   }
+
   for (let i = 0; i < state.hearts.length; i++) {
     const h = state.hearts[i];
     if (!h.taken && rectsHit(player, h)) {
@@ -129,8 +152,31 @@ export function checkCollisions(player, state) {
       }
     }
   }
+
   for (let i = state.enemies.length - 1; i >= 0; i--) {
     const en = state.enemies[i];
+    if (isTopCollision(player, en)) {
+      if (en.hp !== undefined) {
+        en.hp -= 1;
+        if (en.hp <= 0) {
+          state.enemies.splice(i, 1);
+          state.bossActive = false;
+        }
+      } else {
+        state.enemies.splice(i, 1);
+      }
+      player.y = en.y - player.h;
+      player.vy = -180;
+      player.onGround = false;
+      state.phase = 'jump';
+      player.jumps = 1;
+      state.combo += 1;
+      state.comboTimer = 2;
+      state.score += 50;
+      addParticles(player.x + player.w / 2, player.y + player.h, '#66FCF1', 6);
+      continue;
+    }
+
     const hitBox = {
       x: en.x + (en.hitExtra || 0),
       y: en.y + (en.hitExtra || 0),
@@ -155,7 +201,6 @@ export function checkCollisions(player, state) {
         if (state.phase === 'dead') died = true;
         else hurt = true;
       }
-      state.enemies.splice(i, 1);
     }
   }
   return { hurt, died, heal };
