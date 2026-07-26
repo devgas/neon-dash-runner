@@ -30,7 +30,7 @@ let player;
 let paused = false;
 let lastTime = 0;
 let spawnTimer = 1;
-let menuEl, menuStart, menuAudio, menuHint;
+let menuEl, menuStart, menuAudio, menuHint, menuBtn;
 let overlay, finalScoreEl, bestScoreEl, btn, hint;
 let scoreEl, comboEl, livesEl, coinsEl, pauseBtn, bossEl;
 
@@ -309,6 +309,8 @@ function gameLoop(ts) {
 }
 
   let gameOverTimer = null;
+  let pendingScore = 0;
+  let isNewHigh = false;
 
   function gameOver() {
     if (state.gameOverCalled) return;
@@ -323,18 +325,64 @@ function gameLoop(ts) {
     }
     finalScoreEl.textContent = String(state.score);
     bestScoreEl.textContent = 'BEST ' + String(state.highScore);
-    
+
+    isNewHigh = isHighScore(state.score);
+    pendingScore = state.score;
+
+    if (isNewHigh) {
+      document.getElementById('new-high').classList.remove('hidden');
+      document.getElementById('initials-row').classList.remove('hidden');
+      document.getElementById('initials-input').value = '';
+      btn.textContent = 'SAVE';
+      hint.textContent = 'ENTER YOUR INITIALS';
+      menuBtn.style.display = 'none';
+      document.getElementById('skip-btn').style.display = '';
+    } else {
+      document.getElementById('new-high').classList.add('hidden');
+      document.getElementById('initials-row').classList.add('hidden');
+      btn.textContent = 'RETRY';
+      hint.textContent = 'PRESS SPACE OR TAP RETRY';
+      menuBtn.style.display = '';
+      document.getElementById('skip-btn').style.display = 'none';
+    }
+
     overlay.classList.remove('hidden');
     overlay.style.display = 'flex';
-    btn.textContent = 'RETRY';
-    hint.textContent = 'PRESS SPACE OR TAP RETRY';
-    
+
     if (gameOverTimer) clearTimeout(gameOverTimer);
     gameOverTimer = setTimeout(() => {
-      overlay.classList.remove('hidden');
-      overlay.style.display = 'flex';
-      btn.textContent = 'RETRY';
+      if (!overlay.classList.contains('hidden')) {
+        overlay.classList.remove('hidden');
+        overlay.style.display = 'flex';
+        if (btn.textContent !== 'SAVE') btn.textContent = 'RETRY';
+      }
     }, 50);
+  }
+
+  function saveInitials() {
+    const input = document.getElementById('initials-input');
+    const initials = input.value.trim().toUpperCase();
+    if (initials.length < 1) return;
+    saveScore(initials, pendingScore);
+    document.getElementById('new-high').classList.add('hidden');
+    document.getElementById('initials-row').classList.add('hidden');
+    document.getElementById('skip-btn').style.display = 'none';
+    btn.textContent = 'RETRY';
+    hint.textContent = 'PRESS SPACE OR TAP RETRY';
+    menuBtn.style.display = '';
+    isNewHigh = false;
+    pendingScore = 0;
+  }
+
+  function skipInitials() {
+    document.getElementById('new-high').classList.add('hidden');
+    document.getElementById('initials-row').classList.add('hidden');
+    document.getElementById('skip-btn').style.display = 'none';
+    btn.textContent = 'RETRY';
+    hint.textContent = 'PRESS SPACE OR TAP RETRY';
+    menuBtn.style.display = '';
+    isNewHigh = false;
+    pendingScore = 0;
   }
 
 function togglePause() {
@@ -346,6 +394,8 @@ function togglePause() {
     document.getElementById('final-score').textContent = 'SCORE ' + String(state.score);
     document.getElementById('best-score').textContent = 'BEST ' + String(state.highScore);
     btn.textContent = 'RESUME';
+    menuBtn.style.display = '';
+    menuBtn.textContent = 'MENU';
   } else {
     overlay.classList.add('hidden');
     btn.textContent = 'RETRY';
@@ -388,6 +438,10 @@ function reset() {
   comboEl.textContent = '0';
   coinsEl.textContent = '0';
   state.coinsTaken = 0;
+  isNewHigh = false;
+  pendingScore = 0;
+  document.getElementById('new-high').classList.add('hidden');
+  document.getElementById('initials-row').classList.add('hidden');
   renderLives();
   if (bossEl) {
     bossEl.style.display = 'none';
@@ -422,7 +476,7 @@ document.addEventListener('DOMContentLoaded', () => {
   finalScoreEl = document.getElementById('final-score');
   bestScoreEl = document.getElementById('best-score');
   btn = document.getElementById('btn');
-  const menuBtn = document.getElementById('menu-btn');
+  menuBtn = document.getElementById('menu-btn');
   hint = document.getElementById('hint');
   menuEl = document.getElementById('menu');
   menuStart = document.getElementById('menu-start');
@@ -506,13 +560,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   );
 
-  menuBtn?.addEventListener('click', () => {
-    ensureAudio();
-    goToMenu();
-  });
-
   btn.addEventListener('click', () => {
     ensureAudio();
+    if (state.phase === 'dead' && isNewHigh) {
+      saveInitials();
+      return;
+    }
     if (state.phase === 'dead') {
       reset();
       return;
@@ -522,6 +575,19 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
     reset();
+  });
+
+  const initialsInput = document.getElementById('initials-input');
+  initialsInput?.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      saveInitials();
+    }
+  });
+
+  menuBtn?.addEventListener('click', () => {
+    ensureAudio();
+    goToMenu();
   });
 
   pauseBtn?.addEventListener('click', () => togglePause());
@@ -565,6 +631,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
   window.addEventListener('keydown', (e) => {
     ensureAudio();
+    if (state.phase === 'dead' && isNewHigh && e.key === 'Enter') {
+      saveInitials();
+      return;
+    }
     if (['Space', 'ArrowUp', 'KeyW'].includes(e.code) && state.phase === 'idle') {
       reset();
     }
@@ -583,7 +653,8 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
     if (state.phase === 'dead' && ['Space', 'ArrowUp', 'KeyW', 'Enter'].includes(e.code)) {
-      reset();
+      if (!isNewHigh) reset();
+      return;
     }
     if (['Escape', 'KeyP'].includes(e.code)) togglePause();
   });
@@ -615,6 +686,8 @@ function goToMenu() {
   state.bossMaxHp = 0;
   spawnTimer = 1;
   paused = false;
+  isNewHigh = false;
+  pendingScore = 0;
   player = resetPlayer(W, H);
   scoreEl.textContent = '0';
   comboEl.textContent = '0';
@@ -625,10 +698,14 @@ function goToMenu() {
     bossEl.style.display = 'none';
     bossEl.textContent = 'BOSS';
   }
+  document.getElementById('new-high').classList.add('hidden');
+  document.getElementById('initials-row').classList.add('hidden');
+  btn.textContent = 'RETRY';
+  hint.textContent = 'SPACE / TAP to start';
   overlay.classList.add('hidden');
   overlay.style.display = '';
+  document.getElementById('leaderboard').classList.add('hidden');
   menuEl.classList.remove('hidden');
-  hint.textContent = 'SPACE / TAP to start';
   if (menuHint) menuHint.textContent = 'TAP ANYWHERE TO START';
   if (gameOverTimer) {
     clearTimeout(gameOverTimer);

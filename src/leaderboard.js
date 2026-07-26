@@ -13,7 +13,7 @@ export function getLeaderboard() {
 export function saveScore(initials, score) {
   const entries = getLeaderboard();
   entries.push({
-    initials: String(initials).slice(0, 3).toUpperCase(),
+    initials: String(initials).slice(0, 10).toUpperCase(),
     score,
     date: new Date().toLocaleDateString(),
   });

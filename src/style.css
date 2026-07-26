@@ -11,10 +11,13 @@ canvas{display:block;width:100vw;height:100vh;background:#0B0C10}
 #panel{background:rgba(11,12,16,.85);border:1px solid #66FCF1;border-radius:12px;padding:24px 32px;text-align:center;box-shadow:0 0 20px rgba(102,252,241,.25)}
 #panel h1{color:#66FCF1;font-size:22px;letter-spacing:4px;margin-bottom:12px}
 #final-score,#best-score{color:#C5C6C7;font-size:16px;margin:6px 0}
-#btn,#menu-btn,#menu-start,#menu-audio,#pause-btn{margin-top:14px;padding:14px 22px;border:1px solid #66FCF1;background:#1F2833;color:#66FCF1;font-family:inherit;font-size:19px;border-radius:10px;cursor:pointer;transition:transform .08s,background .2s;width:100%;max-width:320px;pointer-events:auto}
+#btn,#menu-btn,#menu-start,#menu-audio,#pause-btn,#menu-leaderboard,#leaderboard-close,#skip-btn{margin-top:14px;padding:14px 22px;border:1px solid #66FCF1;background:#1F2833;color:#66FCF1;font-family:inherit;font-size:19px;border-radius:10px;cursor:pointer;transition:transform .08s,background .2s;width:100%;max-width:320px;pointer-events:auto}
+#btn.secondary,#skip-btn.secondary{background:transparent;color:#45A29E;border-color:#45A29E}
+#btn.secondary:hover,#skip-btn.secondary:hover{background:rgba(69,162,158,.1)}
+#leaderboard-close{margin-top:4px}
 #pause-btn{position:relative;z-index:30;min-width:80px;min-height:44px}
-#btn:hover,#menu-btn:hover,#menu-start:hover,#menu-audio:hover,#pause-btn:hover{background:#2a3a4a}
-#btn:active,#menu-btn:active,#menu-start:active,#menu-audio:active,#pause-btn:active{transform:translateY(1px)}
+#btn:hover,#menu-btn:hover,#menu-start:hover,#menu-audio:hover,#pause-btn:hover,#menu-leaderboard:hover,#leaderboard-close:hover{background:#2a3a4a}
+#btn:active,#menu-btn:active,#menu-start:active,#menu-audio:active,#pause-btn:active,#menu-leaderboard:active,#leaderboard-close:active{transform:translateY(1px)}
 .hidden{display:none!important}
 #hud .heart.lost{opacity:.25}
 #hud .coincollect{color:#11151c;text-shadow:0 0 6px rgba(102,252,241,.25)}

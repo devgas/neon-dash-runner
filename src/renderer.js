@@ -80,7 +80,6 @@ export function render(
     if (c.taken) continue;
     ctx.save();
     ctx.translate(c.x + c.w / 2, c.y + c.h / 2);
-    ctx.rotate(state.distance * 0.1 + i);
     ctx.shadowBlur = 15;
     ctx.shadowColor = '#66FCF1';
     ctx.drawImage(images.coinImg, -c.w / 2, -c.h / 2, c.w, c.h);
