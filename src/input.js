@@ -18,17 +18,27 @@ export function setupInput(onJump) {
   document.body.appendChild(touchBottom);
 
   function onTopStart(e) {
-    const t = e.target;
-    if (t && t.tagName === 'BUTTON') return;
+    if (isTouchOnInteractive(e)) return;
     e.preventDefault();
     onJump();
   }
   function onBottomStart(e) {
-    const t = e.target;
-    if (t && t.tagName === 'BUTTON') return;
+    if (isTouchOnInteractive(e)) return;
     e.preventDefault();
     e.stopPropagation();
     ducking = true;
+  }
+  function isTouchOnInteractive(e) {
+    const touch = e.touches && e.touches[0];
+    if (!touch) {
+      const t = e.target;
+      if (t.closest && t.closest('#ui, #menu, #overlay, #panel, .mbtn, button')) return true;
+      return false;
+    }
+    const el = document.elementFromPoint(touch.clientX, touch.clientY);
+    if (!el) return false;
+    if (el.closest && el.closest('#ui, #menu, #overlay, #panel, .mbtn, button')) return true;
+    return false;
   }
   function onTouchEnd(e) {
     ducking = false;
