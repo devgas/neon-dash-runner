@@ -427,6 +427,7 @@ document.addEventListener('DOMContentLoaded', () => {
   menuEl = document.getElementById('menu');
   menuStart = document.getElementById('menu-start');
   menuAudio = document.getElementById('menu-audio');
+  menuAudio.textContent = 'AUDIO: ON';
   menuHint = document.querySelector('.menu-hint');
   const leaderboardEl = document.getElementById('leaderboard');
   const leaderboardClose = document.getElementById('leaderboard-close');

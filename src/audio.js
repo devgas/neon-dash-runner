@@ -2,6 +2,7 @@ import { AUDIO_PATHS } from './assets.js';
 
 const sfxCache = new Map();
 let musicAudio = null;
+let audioEnabled = true;
 
 function getSfx(name) {
   if (!sfxCache.has(name)) {
@@ -16,15 +17,33 @@ function getSfx(name) {
   return audio;
 }
 
-export function ensureAudio() {}
-
-export function isAudioEnabled() {
-  return true;
+export function ensureAudio() {
+  if (!audioEnabled) return;
+  if (musicAudio) {
+    musicAudio.play().catch(() => {});
+  }
 }
 
-export function setAudioEnabled(enabled) {}
+export function isAudioEnabled() {
+  return audioEnabled;
+}
+
+export function setAudioEnabled(enabled) {
+  audioEnabled = enabled;
+  if (!enabled) {
+    if (musicAudio) {
+      musicAudio.pause();
+      musicAudio.currentTime = 0;
+    }
+  } else {
+    if (musicAudio) {
+      musicAudio.play().catch(() => {});
+    }
+  }
+}
 
 export function playMusic(name) {
+  if (!audioEnabled) return;
   if (musicAudio) {
     musicAudio.pause();
     musicAudio.currentTime = 0;
@@ -46,6 +65,7 @@ export function stopMusic() {
 }
 
 export function playSound(name, vol = 0.8) {
+  if (!audioEnabled) return;
   const audio = getSfx(name);
   if (!audio) return;
   audio.volume = Math.max(0, Math.min(1, vol));
