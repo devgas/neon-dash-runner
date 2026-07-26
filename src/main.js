@@ -81,10 +81,82 @@ function update(dt) {
       state.obstacles.length + state.enemies.length + state.coins.length + state.hearts.length;
     if (activeCount < 16) {
       const pick = Math.random();
-      if (pick < 0.50) state.obstacles.push(spawnObstacle(W, H));
-      else if (pick < 0.75) state.enemies.push(spawnEnemy(W, H, state.speed));
-      else if (pick < 0.90) state.coins.push(spawnCoin(W, H));
-      else state.hearts.push(spawnHeart(W, H));
+      if (pick < 0.50) {
+        const o = spawnObstacle(W, H);
+        const collisionMargin = 20;
+        for (let attempt = 0; attempt < 8; attempt++) {
+          const margin = { x: -collisionMargin, y: -collisionMargin, w: collisionMargin * 2, h: collisionMargin * 2 };
+          const expanded = { x: o.x + margin.x, y: o.y + margin.y, w: o.w + margin.w, h: o.h + margin.h };
+          const overlap = [
+            ...state.obstacles,
+            ...state.enemies,
+            ...state.coins,
+            ...state.hearts,
+          ].some(obj => rectsHit(expanded, obj) || rectsHit(obj, expanded));
+          if (!overlap) {
+            state.obstacles.push(o);
+            break;
+          }
+          o.x += 60;
+          o.y = Math.random() < 0.5 ? H * 0.35 : H * 0.55;
+        }
+      } else if (pick < 0.75) {
+        const e = spawnEnemy(W, H, state.speed);
+        const collisionMargin = 20;
+        for (let attempt = 0; attempt < 8; attempt++) {
+          const margin = { x: -collisionMargin, y: -collisionMargin, w: collisionMargin * 2, h: collisionMargin * 2 };
+          const expanded = { x: e.x + margin.x, y: e.y + margin.y, w: e.w + margin.w, h: e.h + margin.h };
+          const overlap = [
+            ...state.obstacles,
+            ...state.enemies,
+            ...state.coins,
+            ...state.hearts,
+          ].some(obj => rectsHit(expanded, obj) || rectsHit(obj, expanded));
+          if (!overlap) {
+            state.enemies.push(e);
+            break;
+          }
+          e.x += 60;
+          e.baseY = Math.random() < 0.5 ? H * 0.35 : H * 0.55;
+          e.y = e.baseY;
+        }
+      } else if (pick < 0.90) {
+        const c = spawnCoin(W, H);
+        const collisionMargin = 10;
+        for (let attempt = 0; attempt < 6; attempt++) {
+          const margin = { x: -collisionMargin, y: -collisionMargin, w: collisionMargin * 2, h: collisionMargin * 2 };
+          const expanded = { x: c.x + margin.x, y: c.y + margin.y, w: c.w + margin.w, h: c.h + margin.h };
+          const overlap = [
+            ...state.obstacles,
+            ...state.enemies,
+            ...state.coins,
+            ...state.hearts,
+          ].some(obj => rectsHit(expanded, obj) || rectsHit(obj, expanded));
+          if (!overlap) {
+            state.coins.push(c);
+            break;
+          }
+          c.x += 40;
+        }
+      } else {
+        const h = spawnHeart(W, H);
+        const collisionMargin = 10;
+        for (let attempt = 0; attempt < 6; attempt++) {
+          const margin = { x: -collisionMargin, y: -collisionMargin, w: collisionMargin * 2, h: collisionMargin * 2 };
+          const expanded = { x: h.x + margin.x, y: h.y + margin.y, w: h.w + margin.w, h: h.h + margin.h };
+          const overlap = [
+            ...state.obstacles,
+            ...state.enemies,
+            ...state.coins,
+            ...state.hearts,
+          ].some(obj => rectsHit(expanded, obj) || rectsHit(obj, expanded));
+          if (!overlap) {
+            state.hearts.push(h);
+            break;
+          }
+          h.x += 40;
+        }
+      }
     }
     if (!state.bossActive && state.distance > 140 && Math.random() < 0.0025) {
       state.enemies.push(spawnBoss(W, H, state.speed));
