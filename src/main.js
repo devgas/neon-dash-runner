@@ -218,21 +218,34 @@ function gameLoop(ts) {
   requestAnimationFrame(gameLoop);
 }
 
-function gameOver() {
-  if (state.gameOverCalled) return;
-  state.gameOverCalled = true;
-  state.phase = 'dead';
-  stopMusic();
-  playSound('hit.wav', 1.2);
-  playSound('gameover_sting.wav', 0.9);
-  if (state.score > state.highScore) {
-    state.highScore = state.score;
-    localStorage.setItem('neonDashHigh', String(state.highScore));
+  let gameOverTimer = null;
+
+  function gameOver() {
+    if (state.gameOverCalled) return;
+    state.gameOverCalled = true;
+    state.phase = 'dead';
+    stopMusic();
+    playSound('hit.wav', 1.2);
+    playSound('gameover_sting.wav', 0.9);
+    if (state.score > state.highScore) {
+      state.highScore = state.score;
+      localStorage.setItem('neonDashHigh', String(state.highScore));
+    }
+    finalScoreEl.textContent = String(state.score);
+    bestScoreEl.textContent = 'BEST ' + String(state.highScore);
+    
+    overlay.classList.remove('hidden');
+    overlay.style.display = 'flex';
+    btn.textContent = 'RETRY';
+    hint.textContent = 'PRESS SPACE OR TAP RETRY';
+    
+    if (gameOverTimer) clearTimeout(gameOverTimer);
+    gameOverTimer = setTimeout(() => {
+      overlay.classList.remove('hidden');
+      overlay.style.display = 'flex';
+      btn.textContent = 'RETRY';
+    }, 50);
   }
-  finalScoreEl.textContent = String(state.score);
-  bestScoreEl.textContent = 'BEST ' + String(state.highScore);
-  overlay.classList.remove('hidden');
-}
 
 function togglePause() {
   if (state.phase === 'dead' || state.phase === 'idle') return;
@@ -271,9 +284,15 @@ function reset() {
   state.gameOverCalled = false;
   spawnTimer = 1;
 
+  if (gameOverTimer) {
+    clearTimeout(gameOverTimer);
+    gameOverTimer = null;
+  }
+
   player = resetPlayer(W, H);
   paused = false;
   overlay.classList.add('hidden');
+  overlay.style.display = '';
   scoreEl.textContent = '0';
   comboEl.textContent = '0';
   coinsEl.textContent = '0';

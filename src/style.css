@@ -4,7 +4,7 @@ body{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace}
 canvas{display:block;width:100vw;height:100vh;background:#0B0C10}
 #ui{position:absolute;inset:0;pointer-events:none}
 #hud{position:absolute;top:12px;left:12px;right:12px;display:flex;justify-content:space-between;color:#66FCF1;font-size:14px;text-shadow:0 0 8px rgba(102,252,241,.6);z-index:25;pointer-events:none}
-#overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(11,12,16,.65);backdrop-filter:blur(6px);pointer-events:auto;z-index:20}
+#overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(11,12,16,.85);backdrop-filter:blur(8px);pointer-events:auto;z-index:999}
 #hud-right{display:flex;flex-direction:column;align-items:flex-end;gap:4px;pointer-events:auto}
 #hud .q{opacity:.85}
 #combo{color:#45A29E}
