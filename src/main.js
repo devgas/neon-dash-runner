@@ -209,6 +209,7 @@ function gameLoop(ts) {
       render(ctx, W, H, state, player, images, rand);
       if (player.y > H + 100) gameOver();
     } else if (state.phase === 'dead') {
+      gameOver();
       render(ctx, W, H, state, player, images, rand);
     }
     exposeState();

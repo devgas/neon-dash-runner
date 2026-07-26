@@ -38,7 +38,7 @@ test.describe('NEON DASH', () => {
     if (typeof after === 'object') expect(after.paused).toBe(true);
   });
 
-  test('game over shows retry button', async ({ page }) => {
+  test('game over popup appears when lives reach zero', async ({ page }) => {
     page.setViewportSize({ width: 1280, height: 720 });
     await page.goto(BASE, { waitUntil: 'domcontentloaded' });
     await page.click('#menu-start');
@@ -50,21 +50,77 @@ test.describe('NEON DASH', () => {
     await page.evaluate(() => {
       state.lives = 0;
       state.phase = 'dead';
-      const overlay = document.getElementById('overlay');
-      const finalScoreEl = document.getElementById('final-score');
-      const bestScoreEl = document.getElementById('best-score');
-      const btn = document.getElementById('btn');
-      if (overlay) overlay.classList.remove('hidden');
-      if (finalScoreEl) finalScoreEl.textContent = String(state.score);
-      if (bestScoreEl) bestScoreEl.textContent = 'BEST ' + String(state.highScore);
-      if (btn) btn.textContent = 'RETRY';
+      state.gameOverCalled = false;
     });
+
+    await page.waitForFunction(
+      () => typeof state !== 'undefined' && state.gameOverCalled === true,
+      { timeout: 3000 }
+    );
+
+    const overlayVisible = await page.evaluate(() => {
+      const el = document.getElementById('overlay');
+      if (!el) return 'missing';
+      const style = window.getComputedStyle(el);
+      const hasHidden = el.classList.contains('hidden');
+      const isVisible = style.display !== 'none' && style.visibility !== 'hidden' && style.opacity !== '0';
+      return { hasHidden, isVisible, display: style.display, zIndex: style.zIndex, visibility: style.visibility, opacity: style.opacity };
+    });
+
+    console.log('OVERLAY STATE:', JSON.stringify(overlayVisible, null, 2));
+    expect(overlayVisible.hasHidden).toBe(false);
+    expect(overlayVisible.isVisible).toBe(true);
+    expect(overlayVisible.zIndex).not.toBe('auto');
 
     await expect(page.locator('#overlay')).not.toHaveClass(/hidden/);
     await expect(page.locator('#btn')).toHaveText('RETRY');
     await expect(page.locator('#final-score')).toBeVisible();
+    await expect(page.locator('#best-score')).toBeVisible();
+    await expect(page.locator('#hint')).toHaveText('PRESS SPACE OR TAP RETRY');
+  });
 
+  test('retry button resets game from game over', async ({ page }) => {
+    page.setViewportSize({ width: 1280, height: 720 });
+    await page.goto(BASE, { waitUntil: 'domcontentloaded' });
+    await page.click('#menu-start');
+    await page.waitForFunction(
+      () => typeof state !== 'undefined' && state.phase === 'run',
+      { timeout: 3000 }
+    );
+
+    await page.evaluate(() => {
+      state.score = 1234;
+      state.lives = 0;
+      state.phase = 'dead';
+      state.gameOverCalled = false;
+    });
+
+    await page.waitForTimeout(100);
     await page.click('#btn');
+
+    await expect(page.locator('#overlay')).toHaveClass(/hidden/);
+    await expect(page.locator('#score-val')).toHaveText('0');
+    await expect(page.locator('#lives')).toHaveText('♥♥♥');
+  });
+
+  test('space key retries from game over', async ({ page }) => {
+    page.setViewportSize({ width: 1280, height: 720 });
+    await page.goto(BASE, { waitUntil: 'domcontentloaded' });
+    await page.click('#menu-start');
+    await page.waitForFunction(
+      () => typeof state !== 'undefined' && state.phase === 'run',
+      { timeout: 3000 }
+    );
+
+    await page.evaluate(() => {
+      state.lives = 0;
+      state.phase = 'dead';
+      state.gameOverCalled = false;
+    });
+
+    await page.waitForTimeout(100);
+    await page.keyboard.press('Space');
+
     await expect(page.locator('#overlay')).toHaveClass(/hidden/);
     await expect(page.locator('#score-val')).toHaveText('0');
   });

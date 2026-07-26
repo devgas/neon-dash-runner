@@ -48,6 +48,6 @@ export function stopMusic() {
 export function playSound(name, vol = 0.8) {
   const audio = getSfx(name);
   if (!audio) return;
-  audio.volume = vol;
+  audio.volume = Math.max(0, Math.min(1, vol));
   audio.play().catch(() => {});
 }
