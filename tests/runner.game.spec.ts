@@ -37,4 +37,35 @@ test.describe('NEON DASH', () => {
     expect(after).not.toBe('state-unavailable');
     if (typeof after === 'object') expect(after.paused).toBe(true);
   });
+
+  test('game over shows retry button', async ({ page }) => {
+    page.setViewportSize({ width: 1280, height: 720 });
+    await page.goto(BASE, { waitUntil: 'domcontentloaded' });
+    await page.click('#menu-start');
+    await page.waitForFunction(
+      () => typeof state !== 'undefined' && state.phase === 'run',
+      { timeout: 3000 }
+    );
+
+    await page.evaluate(() => {
+      state.lives = 0;
+      state.phase = 'dead';
+      const overlay = document.getElementById('overlay');
+      const finalScoreEl = document.getElementById('final-score');
+      const bestScoreEl = document.getElementById('best-score');
+      const btn = document.getElementById('btn');
+      if (overlay) overlay.classList.remove('hidden');
+      if (finalScoreEl) finalScoreEl.textContent = String(state.score);
+      if (bestScoreEl) bestScoreEl.textContent = 'BEST ' + String(state.highScore);
+      if (btn) btn.textContent = 'RETRY';
+    });
+
+    await expect(page.locator('#overlay')).not.toHaveClass(/hidden/);
+    await expect(page.locator('#btn')).toHaveText('RETRY');
+    await expect(page.locator('#final-score')).toBeVisible();
+
+    await page.click('#btn');
+    await expect(page.locator('#overlay')).toHaveClass(/hidden/);
+    await expect(page.locator('#score-val')).toHaveText('0');
+  });
 });
