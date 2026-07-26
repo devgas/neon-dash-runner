@@ -12,6 +12,7 @@ import {
   checkCollisions,
 } from './player.js';
 import { render } from './renderer.js';
+import { getLeaderboard, saveScore, isHighScore, getTopScore } from './leaderboard.js';
 
 function exposeState() {
   window.state = state;
@@ -421,11 +422,54 @@ document.addEventListener('DOMContentLoaded', () => {
   finalScoreEl = document.getElementById('final-score');
   bestScoreEl = document.getElementById('best-score');
   btn = document.getElementById('btn');
+  const menuBtn = document.getElementById('menu-btn');
   hint = document.getElementById('hint');
   menuEl = document.getElementById('menu');
   menuStart = document.getElementById('menu-start');
   menuAudio = document.getElementById('menu-audio');
   menuHint = document.querySelector('.menu-hint');
+  const leaderboardEl = document.getElementById('leaderboard');
+  const leaderboardClose = document.getElementById('leaderboard-close');
+  const menuLeaderboard = document.getElementById('menu-leaderboard');
+  const leaderboardBody = document.querySelector('#leaderboard-table tbody');
+
+  function renderLeaderboard() {
+    const entries = getLeaderboard();
+    leaderboardBody.innerHTML = '';
+    if (entries.length === 0) {
+      leaderboardBody.innerHTML = '<tr><td colspan="4" style="color:#45A29E">NO SCORES YET</td></tr>';
+      return;
+    }
+    entries.forEach((entry, idx) => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>${idx + 1}</td><td>${escapeHtml(entry.initials)}</td><td>${entry.score}</td><td>${entry.date}</td>`;
+      leaderboardBody.appendChild(tr);
+    });
+  }
+
+  function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
+  function showLeaderboard() {
+    renderLeaderboard();
+    leaderboardEl.classList.remove('hidden');
+  }
+
+  function hideLeaderboard() {
+    leaderboardEl.classList.add('hidden');
+  }
+
+  leaderboardClose?.addEventListener('click', () => {
+    hideLeaderboard();
+  });
+
+  menuLeaderboard?.addEventListener('click', (e) => {
+    e.preventDefault();
+    showLeaderboard();
+  });
 
   function resize() {
     W = canvas.width = window.innerWidth;
@@ -460,6 +504,11 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
   );
+
+  menuBtn?.addEventListener('click', () => {
+    ensureAudio();
+    goToMenu();
+  });
 
   btn.addEventListener('click', () => {
     ensureAudio();
@@ -545,6 +594,46 @@ document.addEventListener('DOMContentLoaded', () => {
   showMenu();
   requestAnimationFrame(gameLoop);
 });
+
+function goToMenu() {
+  stopMusic();
+  state.phase = 'idle';
+  state.gameOverCalled = false;
+  state.lives = 3;
+  state.speed = 10;
+  state._lastSpeedMilestone = 0;
+  state.obstacles = [];
+  state.enemies = [];
+  state.coins = [];
+  state.hearts = [];
+  state.particles = [];
+  state.texts = [];
+  state.camShake = 0;
+  state.bossActive = false;
+  state.bossHp = 0;
+  state.bossMaxHp = 0;
+  spawnTimer = 1;
+  paused = false;
+  player = resetPlayer(W, H);
+  scoreEl.textContent = '0';
+  comboEl.textContent = '0';
+  coinsEl.textContent = '0';
+  state.coinsTaken = 0;
+  renderLives();
+  if (bossEl) {
+    bossEl.style.display = 'none';
+    bossEl.textContent = 'BOSS';
+  }
+  overlay.classList.add('hidden');
+  overlay.style.display = '';
+  menuEl.classList.remove('hidden');
+  hint.textContent = 'SPACE / TAP to start';
+  if (menuHint) menuHint.textContent = 'TAP ANYWHERE TO START';
+  if (gameOverTimer) {
+    clearTimeout(gameOverTimer);
+    gameOverTimer = null;
+  }
+}
 
 function showMenu() {
   state.phase = 'idle';

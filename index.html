@@ -27,7 +27,12 @@
         <h1>NEON DASH</h1>
         <p id="final-score">0</p>
         <p id="best-score">BEST 0</p>
+        <div id="new-high" class="hidden" style="color:#66FCF1;margin:8px 0;font-size:14px">NEW HIGH SCORE!</div>
+        <div id="initials-row" class="hidden" style="margin:8px 0">
+          <input id="initials-input" type="text" maxlength="3" placeholder="AAA" style="width:60px;text-align:center;background:#1F2833;border:1px solid #66FCF1;color:#66FCF1;font-family:inherit;font-size:18px;padding:6px;border-radius:6px"/>
+        </div>
         <button id="btn">RETRY</button>
+        <button id="menu-btn">MENU</button>
         <p id="hint">SPACE / TAP to start</p>
       </div>
     </div>
@@ -41,13 +46,28 @@
         <div class="menu-row">
           <button id="menu-audio">AUDIO: OFF</button>
         </div>
+        <div class="menu-row">
+          <button id="menu-leaderboard">LEADERBOARD</button>
+        </div>
         <p class="menu-sub">JUMP: tap top • DUCK: tap bottom</p>
+      </div>
+    </div>
+    <div id="leaderboard" class="hidden">
+      <div id="leaderboard-panel">
+        <h1>LEADERBOARD</h1>
+        <table id="leaderboard-table">
+          <thead>
+            <tr><th>RANK</th><th>INITIALS</th><th>SCORE</th><th>DATE</th></tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+        <button id="leaderboard-close">CLOSE</button>
       </div>
     </div>
     <div id="mobile-controls">
       <div id="mobile-left">
-        <div class="mbtn" id="m-left">◀</div>
-        <div class="mbtn" id="m-right">▶</div>
+        <div class="mbtn" id="m-left">L</div>
+        <div class="mbtn" id="m-right">R</div>
       </div>
       <div id="mobile-right">
         <div id="mobile-down">
