@@ -29,7 +29,7 @@ canvas{display:block;width:100vw;height:100vh;background:#0B0C10}
 .mbtn{width:48px;height:48px;border-radius:50%;border:2px solid rgba(102,252,241,0.6);background:rgba(31,40,51,0.75);color:#66FCF1;font-size:18px;display:flex;align-items:center;justify-content:center;user-select:none;touch-action:none}
 .mbtn:active{background:rgba(42,58,74,0.9)}
 #mobile-jump .mbtn{width:60px;height:60px;font-size:12px;letter-spacing:1px}
-#mobile-down .mbtn{width:48px;height:48px;font-size:14px;letter-spacing:0.5px}
+#mobile-down .mbtn{width:60px;height:60px;font-size:12px;letter-spacing:0.5px}
 @media (hover:none) and (pointer:coarse){#mobile-controls{display:flex}}
 @media (max-width:480px){#mobile-controls{bottom:6px;padding:0 8px}.mbtn{width:42px;height:42px;font-size:16px}#mobile-jump .mbtn{width:52px;height:52px}#mobile-down .mbtn{width:44px;height:44px;font-size:18px}}
 
