@@ -257,6 +257,13 @@ function update(dt) {
     if (state.speed > 14) state.speed = 14;
   }
 
+  const milestone = Math.floor(state.score / 100);
+  if (milestone > (state._lastSpeedMilestone || 0)) {
+    state._lastSpeedMilestone = milestone;
+    state.speed += 0.8;
+    if (state.speed > 18) state.speed = 18;
+  }
+
   if (player.invuln > 0) {
     player.invuln -= dt;
     if (player.invuln <= 0 && state.phase === 'hurt' && player.onGround) {
@@ -352,6 +359,7 @@ function reset() {
   state.combo = 0;
   state.comboTimer = 0;
   state.speed = 10;
+  state._lastSpeedMilestone = 0;
   state.obstacles = [];
   state.enemies = [];
   state.coins = [];
