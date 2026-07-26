@@ -239,6 +239,10 @@ function update(dt) {
   if (collision.land) {
     playSound('hit.wav', 0.5);
   }
+  if (collision.stomp) {
+    playSound('hit.wav', 0.5);
+    addParticles(player.x + player.w / 2, player.y + player.h, '#66FCF1', 6);
+  }
 
   updatePhysics(player, W, H, dt, input, state);
 

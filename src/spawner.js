@@ -7,7 +7,7 @@ export function spawnObstacle(W, H) {
   else if (r < 0.45) type = 'crate';
   else if (r < 0.55) type = 'low';
 
-  const lane = Math.random() * 0.35 + 0.3;
+  const lane = Math.random() * 0.30 + 0.45;
   const o = { x: W + 40, y: 0, w: 0, h: 0, type, passed: false, landable: true };
 
   if (type === 'barrier' || type === 'double') o.w = 36;

@@ -50,7 +50,7 @@ export function setupInput(onJump) {
     [touchBottom, 'touchend', onTouchEnd],
     [touchBottom, 'touchmove', (e) => e.preventDefault()],
   ].forEach(([el, t, fn]) =>
-    el.addEventListener(t, fn, { passive: t === 'touchstart' ? false : true })
+    el.addEventListener(t, fn, { passive: t === 'touchstart' || t === 'touchmove' ? false : true })
   );
 
   const mLeft = document.getElementById('m-left');

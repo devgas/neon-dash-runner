@@ -12,6 +12,7 @@ export function resetPlayer(W, H) {
     invuln: 0,
     jumps: 0,
     ducking: false,
+    standOn: null,
   };
 }
 
@@ -111,6 +112,7 @@ export function checkCollisions(player, state) {
   let hurt = false;
   let died = false;
   let heal = false;
+  let stomp = false;
 
   for (let i = 0; i < state.obstacles.length; i++) {
     const o = state.obstacles[i];
@@ -173,7 +175,7 @@ export function checkCollisions(player, state) {
       state.combo += 1;
       state.comboTimer = 2;
       state.score += 50;
-      addParticles(player.x + player.w / 2, player.y + player.h, '#66FCF1', 6);
+      stomp = true;
       continue;
     }
 
@@ -203,5 +205,5 @@ export function checkCollisions(player, state) {
       }
     }
   }
-  return { hurt, died, heal };
+  return { hurt, died, heal, stomp };
 }
