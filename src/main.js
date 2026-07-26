@@ -253,7 +253,12 @@ function update(dt) {
     if (state.speed > 14) state.speed = 14;
   }
 
-  if (player.invuln > 0) player.invuln -= dt;
+  if (player.invuln > 0) {
+    player.invuln -= dt;
+    if (player.invuln <= 0 && state.phase === 'hurt' && player.onGround) {
+      state.phase = 'run';
+    }
+  }
   scoreEl.textContent = String(state.score);
   comboEl.textContent = String(state.combo);
   if (coinsEl) coinsEl.textContent = String(state.coinsTaken);

@@ -16,8 +16,8 @@ export function resetPlayer(W, H) {
 }
 
 export function doJump(player, state) {
-  if (state.phase === 'dead' || state.phase === 'hurt') return;
-  if (state.phase === 'run' || state.phase === 'idle') {
+  if (state.phase === 'dead') return;
+  if (state.phase === 'run' || state.phase === 'idle' || state.phase === 'hurt') {
     player.vy = CONSTANTS.JUMP;
     player.onGround = false;
     state.phase = 'jump';
